@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# Fabfile to create and distribute an archive to a web server.
+# An all in one deployment function to pack the payload and deploy to all severs 
 import os.path
 from datetime import datetime
 from fabric.api import env
@@ -7,18 +7,22 @@ from fabric.api import local
 from fabric.api import put
 from fabric.api import run
 
-env.hosts = ["104.196.168.90", "35.196.46.172"]
-
+env.user = "ubuntu"
+env.hosts = ["100.26.211.168", "54.173.150.105"]
 
 def do_pack():
-    """Create a tar gzipped archive of the directory web_static."""
-    dt = datetime.utcnow()
-    file = "versions/web_static_{}{}{}{}{}{}.tgz".format(dt.year,
-                                                         dt.month,
-                                                         dt.day,
-                                                         dt.hour,
-                                                         dt.minute,
-                                                         dt.second)
+    """Create a tar gzipped archive of the directory web_static.
+	Return:
+		None (if compressed file already exists)
+		else:
+			created file"""
+    DT = datetime.utcnow()
+    file = "versions/web_static_{}{}{}{}{}{}.tgz".format(DT.year,
+                                                         DT.month,
+                                                         DT.day,
+                                                         DT.hour,
+                                                         DT.minute,
+                                                         DT.second)
     if os.path.isdir("versions") is False:
         if local("mkdir -p versions").failed is True:
             return None
@@ -69,7 +73,7 @@ def do_deploy(archive_path):
 
 
 def deploy():
-    """Create and distribute an archive to a web server."""
+    """Create and distribute an archive to a web server, by combining the two functions above"""
     file = do_pack()
     if file is None:
         return False
